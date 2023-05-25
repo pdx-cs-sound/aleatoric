@@ -36,18 +36,16 @@ def bpm_to_samples(bpm):
 def note(f, bpm):
     saw = Saw(f)
     nsamples = bpm_to_samples(bpm)
-    samples = saw.samples(0, n = nsamples)
-    assert nsamples == len(samples)
-    return samples
+    samples = saw.samples(0, n = int(0.9 * nsamples))
+    release = np.zeros(int(0.1 * nsamples), dtype=np.float32)
+    return np.concatenate((samples, release))
 
 def rest(bpm):
     nsamples = bpm_to_samples(bpm)
-    return np.zeros(nsamples, dtype=np.float32)
+    return np.zeros(nsamples)
 
 anote = note(440, 120)
-space = rest(120)
-np.append(anote, space)
-track = np.repeat(anote, 2)
+track = np.tile(anote, 8)
 
 args = sys.argv
 nargs = len(args)
