@@ -56,16 +56,22 @@ def scale(midi_key, offsets):
 # A Minor scale.
 root = 57
 trial_scale = scale(root, minor_offsets)
-drone = note(root - 24, 1)
 
-def measure(n):
+def measure(n, d):
     freqs = [key_to_freq(random.choice(trial_scale)) for _ in range(n)]
     notes = np.concatenate(tuple(note(f, 4) for f in freqs))
+    drone = note(d - 24, 1)
     return 0.5 * (notes + drone)
 
-riff = measure(4)
+def bars(n, m):
+    choices = [trial_scale[i] for i in (0, 3, 4)]
+    basses = [random.choice(choices) for _ in range(n)]
+    basses[-1] = trial_scale[0]
+    return np.concatenate(tuple(measure(m, d) for d in basses))
 
-track = np.tile(riff, 8)
+stanza = bars(4, 4)
+
+track = np.tile(stanza, 2)
 
 args = sys.argv
 nargs = len(args)
