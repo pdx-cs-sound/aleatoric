@@ -1,4 +1,4 @@
-import sounddevice, sys
+import random, sounddevice, sys
 import numpy as np
 from scipy import io
 
@@ -30,22 +30,34 @@ class Saw(object):
         a = self.tmul * times
         return 2.0 * (a - np.floor(0.5 + a))
 
-def bpm_to_samples(bpm):
-    return int(sample_rate / (bpm / 60.0))
+bpm = 120
+bpm_nsamples = int(sample_rate / (bpm / 60.0))
 
-def quarter_note(bpm, f):
+def quarter_note(f):
     saw = Saw(f)
-    nsamples = bpm_to_samples(bpm)
-    samples = saw.samples(0, n = int(0.9 * nsamples))
-    release = np.zeros(int(0.1 * nsamples), dtype=np.float32)
+    samples = saw.samples(0, n = int(0.9 * bpm_nsamples))
+    release = np.zeros(int(0.1 * bpm_nsamples), dtype=np.float32)
     return np.append(samples, release)
 
-def quarter_rest(bpm):
-    nsamples = bpm_to_samples(bpm)
-    return np.zeros(nsamples)
+def quarter_rest():
+    return np.zeros(bpm_nsamples)
 
-anote = quarter_note(120, 440)
-track = np.tile(anote, 8)
+def key_to_freq(midi_key):
+    return 440 * 2**((midi_key - 69) / 12)
+
+def major_scale(midi_key):
+    offsets = [0, 2, 4, 5, 7, 9, 11]
+    return [midi_key + q for q in offsets]
+
+trial_scale = major_scale(60)
+
+def measure(n):
+    freqs = [key_to_freq(random.choice(trial_scale)) for _ in range(n)]
+    return np.concatenate(tuple(quarter_note(f) for f in freqs))
+
+riff = measure(4)
+
+track = np.tile(riff, 8)
 
 args = sys.argv
 nargs = len(args)
