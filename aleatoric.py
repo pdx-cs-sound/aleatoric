@@ -33,18 +33,18 @@ class Saw(object):
 def bpm_to_samples(bpm):
     return int(sample_rate / (bpm / 60.0))
 
-def note(f, bpm):
+def quarter_note(bpm, f):
     saw = Saw(f)
     nsamples = bpm_to_samples(bpm)
     samples = saw.samples(0, n = int(0.9 * nsamples))
     release = np.zeros(int(0.1 * nsamples), dtype=np.float32)
-    return np.concatenate((samples, release))
+    return np.append(samples, release)
 
-def rest(bpm):
+def quarter_rest(bpm):
     nsamples = bpm_to_samples(bpm)
     return np.zeros(nsamples)
 
-anote = note(440, 120)
+anote = quarter_note(120, 440)
 track = np.tile(anote, 8)
 
 args = sys.argv
