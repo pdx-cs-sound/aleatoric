@@ -75,7 +75,7 @@ def bars(n, m):
 
 stanza = bars(4, 4)
 
-track = np.tile(stanza, 2)
+track = 0.5 * np.tile(stanza, 2)
 
 args = sys.argv
 nargs = len(args)
