@@ -33,27 +33,35 @@ class Saw(object):
 bpm = 120
 bpm_nsamples = int(sample_rate / (bpm / 60.0))
 
-def quarter_note(f):
+def note(f, frac):
+    nsamples = bpm_nsamples * 4 // frac
+    release = int(0.05 * bpm_nsamples)
     saw = Saw(f)
-    samples = saw.samples(0, n = int(0.9 * bpm_nsamples))
-    release = np.zeros(int(0.1 * bpm_nsamples), dtype=np.float32)
+    samples = saw.samples(0, n = nsamples - release)
+    release = np.zeros(release, dtype=np.float32)
     return np.append(samples, release)
 
-def quarter_rest():
-    return np.zeros(bpm_nsamples)
+def rest(frac):
+    return np.zeros(bpm_nsamples * 4 // frac)
 
 def key_to_freq(midi_key):
     return 440 * 2**((midi_key - 69) / 12)
 
-def major_scale(midi_key):
-    offsets = [0, 2, 4, 5, 7, 9, 11]
+major_offsets = [0, 2, 4, 5, 7, 9, 11]
+minor_offsets = [0, 2, 3, 5, 7, 8, 10]
+
+def scale(midi_key, offsets):
     return [midi_key + q for q in offsets]
 
-trial_scale = major_scale(60)
+# A Minor scale.
+root = 57
+trial_scale = scale(root, minor_offsets)
+drone = note(root - 24, 1)
 
 def measure(n):
     freqs = [key_to_freq(random.choice(trial_scale)) for _ in range(n)]
-    return np.concatenate(tuple(quarter_note(f) for f in freqs))
+    notes = np.concatenate(tuple(note(f, 4) for f in freqs))
+    return 0.5 * (notes + drone)
 
 riff = measure(4)
 
