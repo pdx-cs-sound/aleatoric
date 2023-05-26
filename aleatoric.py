@@ -59,7 +59,11 @@ trial_scale = scale(root, minor_offsets)
 
 def measure(n, d):
     freqs = [key_to_freq(random.choice(trial_scale)) for _ in range(n)]
-    notes = np.concatenate(tuple(note(f, 4) for f in freqs))
+    levels = [0.5] * n
+    levels[0] = 1.0
+    notes = np.concatenate(tuple(
+        l * note(f, 4) for l, f in zip(levels, freqs)
+    ))
     drone = note(d - 24, 1)
     return 0.5 * (notes + drone)
 
