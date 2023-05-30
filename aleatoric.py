@@ -57,8 +57,11 @@ def scale(midi_key, offsets):
 root = 57
 trial_scale = scale(root, minor_offsets)
 
+chord_weights = [0.8, 0.2, 0.8, 0.1, 0.8, 0.1, 0.05]
+
 def measure(n, d):
-    freqs = [key_to_freq(random.choice(trial_scale)) for _ in range(n)]
+    freqs = [key_to_freq(random.choices(trial_scale, weights=chord_weights)[0])
+             for _ in range(n)]
     levels = [0.5] * n
     levels[0] = 1.0
     notes = np.concatenate(tuple(
