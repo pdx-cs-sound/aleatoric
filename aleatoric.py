@@ -59,13 +59,19 @@ trial_scale = scale(root, minor_offsets)
 
 chord_weights = [0.8, 0.2, 0.8, 0.1, 0.8, 0.1, 0.05]
 
+nsnare = int(sample_rate * 0.005)
+snare_sample = 40 * np.random.rand(nsnare) - 1
+
+def snare(frac):
+    return np.append(snare_sample, np.zeros(bpm_nsamples * 4 // frac - nsnare))
+
 def measure(n, d):
     freqs = [key_to_freq(random.choices(trial_scale, weights=chord_weights)[0])
              for _ in range(n)]
     levels = [0.5] * n
     levels[0] = 1.0
     notes = np.concatenate(tuple(
-        l * note(f, 4) for l, f in zip(levels, freqs)
+        l * (snare(4) + note(f, 4)) for l, f in zip(levels, freqs)
     ))
     drone = note(d - 24, 1)
     return 0.5 * (notes + drone)
